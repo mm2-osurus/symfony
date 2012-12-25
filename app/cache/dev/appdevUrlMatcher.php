@@ -162,6 +162,28 @@ class appdevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
 
         }
 
+        if (0 === strpos($pathinfo, '/blog')) {
+            // Blog_home
+            if (rtrim($pathinfo, '/') === '/blog') {
+                if (substr($pathinfo, -1) !== '/') {
+                    return $this->redirect($pathinfo.'/', 'Blog_home');
+                }
+
+                return array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\PublicController::indexAction',  '_route' => 'Blog_home',);
+            }
+
+            // Blog_page
+            if (0 === strpos($pathinfo, '/blog/p') && preg_match('#^/blog/p/(?P<page>\\d+)$#s', $pathinfo, $matches)) {
+                return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\PublicController::pageAction',)), array('_route' => 'Blog_page'));
+            }
+
+            // Blog_article
+            if (0 === strpos($pathinfo, '/blog/article') && preg_match('#^/blog/article/(?P<_locale>fr|en)/(?P<annee>\\d{4})/(?P<slug>[^/\\.]+)\\.(?P<_format>rss|html)$#s', $pathinfo, $matches)) {
+                return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\PublicController::articleAction',  'format' => 'html',  '_locale' => 'fr',)), array('_route' => 'Blog_article'));
+            }
+
+        }
+
         // hello_homepage
         if (0 === strpos($pathinfo, '/hello') && preg_match('#^/hello/(?P<name>[^/]+)$#s', $pathinfo, $matches)) {
             return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\HelloBundle\\Controller\\DefaultController::indexAction',)), array('_route' => 'hello_homepage'));
@@ -169,7 +191,7 @@ class appdevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
 
         // HelloBundleTest
         if ($pathinfo === '/test') {
-            return array (  '_controller' => 'HelloBundle:Test:index',  '_route' => 'HelloBundleTest',);
+            return array (  '_controller' => 'Tuto\\HelloBundle\\Controller\\TestController::indexAction',  '_route' => 'HelloBundleTest',);
         }
 
         throw 0 < count($allow) ? new MethodNotAllowedException(array_unique($allow)) : new ResourceNotFoundException();
