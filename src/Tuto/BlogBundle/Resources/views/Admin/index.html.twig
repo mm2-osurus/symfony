@@ -1,0 +1,13 @@
+<html>
+    <body>
+	<p>
+	    {% for k, v in app.session.getFlashes() %}
+
+		<span class="{{ k }}">{{ v }}</span>
+
+	    {% endfor %}
+	</p>
+	<h1>Admin</h1>
+	<a href="{{ path('blog_ajouter_article') }}" title="">Ajouter un article</a>
+    </body>
+</html>

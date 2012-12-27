@@ -173,14 +173,65 @@ class appdevUrlMatcher extends Symfony\Bundle\FrameworkBundle\Routing\Redirectab
             }
 
             // Blog_page
-            if (0 === strpos($pathinfo, '/blog/p') && preg_match('#^/blog/p/(?P<page>\\d+)$#s', $pathinfo, $matches)) {
+            if (0 === strpos($pathinfo, '/blog/page') && preg_match('#^/blog/page/(?P<page>\\d+)$#s', $pathinfo, $matches)) {
                 return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\PublicController::pageAction',)), array('_route' => 'Blog_page'));
             }
 
             // Blog_article
-            if (0 === strpos($pathinfo, '/blog/article') && preg_match('#^/blog/article/(?P<_locale>fr|en)/(?P<annee>\\d{4})/(?P<slug>[^/\\.]+)\\.(?P<_format>rss|html)$#s', $pathinfo, $matches)) {
-                return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\PublicController::articleAction',  'format' => 'html',  '_locale' => 'fr',)), array('_route' => 'Blog_article'));
+            if (0 === strpos($pathinfo, '/blog/article') && preg_match('#^/blog/article/(?P<slug>[^/\\.]+)(?:\\.(?P<_format>html))?$#s', $pathinfo, $matches)) {
+                return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\PublicController::articleAction',  '_format' => 'html',)), array('_route' => 'Blog_article'));
             }
+
+        }
+
+        if (0 === strpos($pathinfo, '/admin/blog')) {
+            // blog_admin_home
+            if (rtrim($pathinfo, '/') === '/admin/blog') {
+                if (!in_array($this->context->getMethod(), array('GET', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'HEAD'));
+                    goto not_blog_admin_home;
+                }
+
+                if (substr($pathinfo, -1) !== '/') {
+                    return $this->redirect($pathinfo.'/', 'blog_admin_home');
+                }
+
+                return array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\AdminController::indexAction',  '_route' => 'blog_admin_home',);
+            }
+            not_blog_admin_home:
+
+            // blog_ajouter_article
+            if ($pathinfo === '/admin/blog/ajouter') {
+                if (!in_array($this->context->getMethod(), array('GET', 'POST', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'POST', 'HEAD'));
+                    goto not_blog_ajouter_article;
+                }
+
+                return array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\AdminArticleController::ajouterAction',  '_route' => 'blog_ajouter_article',);
+            }
+            not_blog_ajouter_article:
+
+            // blog_editer_article
+            if (preg_match('#^/admin/blog/(?P<id>\\d+)/editer$#s', $pathinfo, $matches)) {
+                if (!in_array($this->context->getMethod(), array('GET', 'POST', 'HEAD'))) {
+                    $allow = array_merge($allow, array('GET', 'POST', 'HEAD'));
+                    goto not_blog_editer_article;
+                }
+
+                return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\AdminArticleController::editerAction',)), array('_route' => 'blog_editer_article'));
+            }
+            not_blog_editer_article:
+
+            // blog_supprimer_article
+            if (preg_match('#^/admin/blog/(?P<id>\\d+)/supprimer$#s', $pathinfo, $matches)) {
+                if ($this->context->getMethod() != 'DELETE') {
+                    $allow[] = 'DELETE';
+                    goto not_blog_supprimer_article;
+                }
+
+                return array_merge($this->mergeDefaults($matches, array (  '_controller' => 'Tuto\\BlogBundle\\Controller\\AdminArticleController::supprimerAction',)), array('_route' => 'blog_supprimer_article'));
+            }
+            not_blog_supprimer_article:
 
         }
 

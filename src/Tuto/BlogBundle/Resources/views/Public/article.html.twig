@@ -1,9 +1,23 @@
 <html>
+    <head>
+	<meta charset="utf-8">
+	<title>{{ article.titre }}</title>
+    </head>
     <body>
-	<h1>Mots clef : {{slug}}</h1>
-	<h1>Publié en : {{annee}}</h1>
-	<h1>Langue : {{lang}}</h1>
-
-	<a href="{{ path('Blog_page',{ page: annee }) }}" title="Retour à la page {{annee}}">Retour à la page {{annee}}</a>
+	<article>
+	    <header>
+		<h1>{{ article.titre }}</h1>
+		<p>
+		    <span>Publié le {{ article.date|date('d/m/Y') }} </span>
+		    <span>Par {{ article.auteur }}</span>
+		</p>
+		<p>
+		    {{ article.contenu }}
+		</p>
+		<p>
+		    {{ article.token }}
+		</p>
+	    </header>
+	</article>
     </body>
 </html>

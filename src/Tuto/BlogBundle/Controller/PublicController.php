@@ -15,12 +15,30 @@ class PublicController extends Controller {
 	));
     }
 
-    public function articleAction($slug, $annee, $_locale){
-	return $this->render("BlogBundle:Public:article.html.twig", array(
-	    'slug'	=>	$slug,
-	    'annee'	=>	$annee,
-	    'lang'	=>	$_locale
-	));
+    public function articleAction($slug){
+	//GEstion cookies
+	$cookies = $this->getRequest()->cookies;
+	$cookies->set('nom_du_cookie', 'test cookie');
+
+	//Session
+	$session = $this->get('session');
+	$session->set('dateDerniereVisite',new \DateTime());
+
+	$article = array(
+	    'titre'	=>  'Titre de l\'article',
+	    'date'	=>  $session->get('dateDerniereVisite'),
+	    'contenu'	=>  'Contenu ici...',
+	    'auteur'	=>  'Osurus',
+	    'token'	=>  $cookies->get('nom_du_cookie')
+	);
+
+	return $this->render(
+	    'BlogBundle:Public:article.html.twig',
+	    array(
+		'article'   =>	$article
+	    )
+	);
+
     }
 
 }

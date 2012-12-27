@@ -9,9 +9,7 @@ Blog_page:
         page: \d+
 
 Blog_article:
-    pattern: /article/{_locale}/{annee}/{slug}.{_format}
-    defaults: { _controller: BlogBundle:Public:article, format: html, _locale: fr }
+    pattern: /article/{slug}.{_format}
+    defaults: { _controller: BlogBundle:Public:article, _format: html }
     requirements:
-        annee: \d{4}
-        _format: rss|html
-        _locale: fr|en
+        _format: html
